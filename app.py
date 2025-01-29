@@ -7,17 +7,16 @@ import openai
 from flask_cors import CORS
 import spacy
 from dotenv import load_dotenv
-
+import os 
 
 nlp = spacy.load("en_core_web_sm")
 
 app = Flask(__name__)
 CORS(app)
 
-
-API_KEY = "AIzaSyADMJpudnmL9llByvI80KE5IQQ7EZBsqPQ"  # Google Custom Search API Key
-SEARCH_ENGINE_ID = "20de888b2eb6c49ef"  # Custom Search Engine ID
-OPENAI_API_KEY = "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"  # OpenAI Key
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+API_KEY = os.getenv("GOOGLE_API_KEY")
+SEARCH_ENGINE_ID = os.getenv("SEARCH_ENGINE_ID")  # OpenAI Key
 
 openai.api_key = OPENAI_API_KEY
 
