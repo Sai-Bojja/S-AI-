@@ -1,4 +1,9 @@
-flask
+Flask
 requests
-openai
 beautifulsoup4
+openai
+flask-cors
+spacy
+python-dotenv
+waitress
+
