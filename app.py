@@ -1,4 +1,4 @@
-# This is a working code for PRO_CHAT, date 29/12
+# This is a working code for PRO_CHAT, date 04/17
 
 import requests
 from flask import Flask, request, jsonify, render_template, url_for
@@ -7,8 +7,6 @@ import openai
 from flask_cors import CORS
 import spacy
 from dotenv import load_dotenv
-##from diffusers import StableDiffusionPipeline
-##import torch
 import os 
 
 
@@ -27,11 +25,6 @@ SEARCH_ENGINE_ID = os.getenv("SEARCH_ENGINE_ID")
 openai.api_key = OPENAI_API_KEY
 
 client = openai.OpenAI(api_key=OPENAI_API_KEY)
-
-# Initialize Stable Diffusion Pipeline
-#device = "cuda" if torch.cuda.is_available() else "cpu"
-##pipe = StableDiffusionPipeline.from_pretrained("runwayml/stable-diffusion-v1-5")
-##pipe = pipe.to("cuda")
 
 
 # Predefined casual intents and responses
@@ -71,31 +64,6 @@ def detect_intent_spacy(user_query):
 
     return None
 
-
-# A01 ADDED this chunk for image generation as DALL E is not working 
-##def generate_image_with_stable_diffusion(prompt):
-    """
-    Generate an image using Stable Diffusion.
-    """
-    try:
-        image = pipe(prompt, num_interference_steps=25).images[0]
-        # A02 added this to change the Url Image path situation between front and back. 
-        import os
-        os.makedirs("static", exist_ok=True)
-
-        #unique_filename = f"generated_image_{uuid.uuid4().hex[:8]}.png"  
-        #image_path = os.path.join("static", unique_filename)
-        # Til here for A02
-
-
-        # Save the image locally and return the file path
-        image_path = f"static/generated_image.png" # A02
-        image.save(image_path) # A02 
-        #return image_path # A02 Commented this line as we need to return a Url for front end to read 
-        return url_for('static',filename='generated_image.png', _external=True)
-    except Exception as e:
-        return f"Error generating image: {str(e)}"
-# Till here A01   
 
 def generate_image_with_dalle(prompt):
     """
@@ -195,18 +163,6 @@ def chunk_content(content, chunk_size=300):
 
     return chunks
 
-##def generate_creative_text(prompt, model="text-davinci-003", max_tokens=150, temperature=0.7):
-    """
-    Generates creative text formats using OpenAI's chat.completions.create API.
-    """
-    response = openai.chat.completions.create(
-        model=model,
-        messages=[{"role": "system", "content": "You are a creative AI assistant."}, {"role": "user", "content": prompt}],
-        max_tokens=max_tokens,
-        temperature=temperature,
-    )
-    return response.choices[0].message.content.strip()
-
 
 
 @app.route("/")
@@ -239,10 +195,6 @@ def handle_query():
             return jsonify({"response": image_url}), 500
         return jsonify({"response": "Here is the generated image:", "image_url": image_url}), 200
 
-        ##image_path = generate_image_with_stable_diffusion(user_query)
-        ##if "Error" in image_path:
-            ##return jsonify({"response": image_path}), 500
-        ##return jsonify({"response": "Here is the generated image:", "image_url": image_path}), 200
 
     # Step 1: Search the Web Using Google Custom Search API
     search_url = "https://www.googleapis.com/customsearch/v1"
