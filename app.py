@@ -45,22 +45,24 @@ casual_responses = {
 # image generation intent
 image_generation_intent_keywords = ["draw", "generate", "illustrate", "generate image", "create a sticker","Picture","picture","image","Image", "generate a picture"]
 
-def detect_intent_spacy(user_query):
+def detect_intent_with_embeddings(user_query):
     """
-    Detect intent using spaCy NLP with improved flexibility for casual intents.
+    Detect intent using sentence embeddings for better semantic understanding.
     """
-    doc = nlp(user_query.lower())
+    user_embedding = model.encode(user_query.lower(), convert_to_tensor=True)
+
+    # Check for casual intents
     for intent, phrases in casual_intents.items():
         for phrase in phrases:
-            # Tokenized and lemmatized matching for better intent detection
-            phrase_doc = nlp(phrase.lower())
-            if doc.similarity(phrase_doc) > 0.75:  # Adjust similarity threshold
+            phrase_embedding = model.encode(phrase.lower(), convert_to_tensor=True)
+            similarity = util.pytorch_cos_sim(user_embedding, phrase_embedding).item()
+            if similarity > 0.8:  # Adjust threshold as needed
                 return intent
-            
-    ##Check for image generation intent
+
+    # Check for image generation intent
     for keyword in image_generation_intent_keywords:
         if keyword in user_query.lower():
-           return "image_generation"
+            return "image_generation"
 
     return None
 
@@ -182,10 +184,11 @@ def handle_query():
     if not user_query:
         return jsonify({"error": "No query provided"}), 400
     
-     # Step 0: Detect intent using spaCy
-    intent = detect_intent_spacy(user_query)
+     # Step 0: Detect intent using embeddings
+    intent = detect_intent_with_embeddings(user_query)
     if intent and intent in casual_responses:
         return jsonify({"response": casual_responses[intent]}), 200
+
     
     # Image Generation Intent
     # Added this as a part of A01
