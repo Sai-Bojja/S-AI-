@@ -8,6 +8,12 @@ from flask_cors import CORS
 import spacy
 from dotenv import load_dotenv
 import os 
+from sentence_transformers import SentenceTransformer, util  # Import SentenceTransformer
+
+# Initialize the SentenceTransformer model
+model = SentenceTransformer('all-MiniLM-L6-v2')
+
+# ...existing code...
 
 
 load_dotenv()
